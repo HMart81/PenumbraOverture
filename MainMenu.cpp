@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Penumbra Overture.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <functional>
+
 #include "MainMenu.h"
 
 #include "Init.h"
@@ -2759,7 +2762,7 @@ public:
 	cDate mDate;
 };
 
-typedef std::multiset<cTempFileAndData,std::greater<cTempFileAndData> > tTempFileAndDataSet;
+typedef std::multiset<cTempFileAndData, std::greater<cTempFileAndData> > tTempFileAndDataSet;
 typedef tTempFileAndDataSet::iterator tTempFileAndDataSetIt;
 
 

@@ -453,7 +453,10 @@ bool cInit::Init(tString asCommandLine)
 	// LANGUAGE ////////////////////////////////
 	mpGame->GetResources()->SetLanguageFile(msLanguageFile);
 
-	Log("Initializing "PRODUCT_NAME"\n  Version\t"PRODUCT_VERSION"\n  Date\t"PRODUCT_DATE"\n");
+	char sVersion[256];
+	snprintf(sVersion, sizeof(sVersion), "Initializing %s\n Version\t%s\n  Date\t%s\n", PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_DATE);
+	Log(sVersion);
+	//Log("Initializing "PRODUCT_NAME"\n  Version\t"PRODUCT_VERSION"\n  Date\t"PRODUCT_DATE"\n");
 	//////////////////////////////////////////////7
 	// Check if computer supports game
 	if(CheckSupport(this)==false) return false;
