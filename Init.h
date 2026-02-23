@@ -72,6 +72,7 @@ class cMainMenu;
 	#define PERSONAL_RELATIVEGAME _W("Penumbra/Overture/")
 #endif
 
+
 //--------------------------------------------------------
 
 //#define DEMO_VERSION
@@ -196,9 +197,7 @@ public:
 	
 	cMainMenu *mpMainMenu;
 
-	cIntroStory* mpIntroStory;	
-
+	cIntroStory* mpIntroStory;
 };
-
 
 #endif // GAME_INIT_H

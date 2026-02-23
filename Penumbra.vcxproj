@@ -70,7 +70,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>HPLd.lib;OALWrapper.lib;fltk.lib;wsock32.lib;comctl32.lib;alut.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>W:\MyRepositories\HPL1Engine\lib;W:\MyRepositories\HPL1Engine\dependencies\lib\win32;W:\MyRepositories\OALWrapper\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>W:\MyRepositories\HPL1Engine\dependencies\lib\win32;W:\MyRepositories\OALWrapper\lib\Debug;W:\MyRepositories\HPL1Engine\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>

@@ -406,34 +406,34 @@ bool cInit::Init(tString asCommandLine)
 	Vars.AddBool("UseVoiceManagement", mpConfig->GetBool("Sound","UseVoiceManagement",true));
 	Vars.AddInt("MaxMonoChannelsHint",mlMaxMonoChannelsHint);
 	Vars.AddInt("MaxStereoChannelsHint",mlMaxStereoChannelsHint);
-	Vars.AddInt("StreamBufferSize",mpConfig->GetInt("Sound", "StreamBufferSize", 64));
-	Vars.AddInt("StreamBufferCount",mpConfig->GetInt("Sound", "StreamBufferCount", 4));
+	Vars.AddInt("StreamBufferSize",mpConfig->GetInt("Sound", "StreamBufferSize", 65536));
+	Vars.AddInt("StreamBufferCount",mpConfig->GetInt("Sound", "StreamBufferCount", 8));
 	Vars.AddString("DeviceName",mpConfig->GetString("Sound", "DeviceName", "NULL"));
 	Vars.AddString("WindowCaption", "Penumbra Loading...");
 
 	Vars.AddBool("LowLevelSoundLogging", mpConfig->GetBool("Sound","LowLevelLogging", false));
 
 	// Set CG Options
-	cCGProgram::SetFProfile(mpConfig->GetString("Graphics","ForceFP","AUTO"));
-	cCGProgram::SetVProfile(mpConfig->GetString("Graphics","ForceVP","AUTO"));
-
+	cCGProgram::SetFProfile(mpConfig->GetString("Graphics", "ForceFP", "AUTO"));
+	cCGProgram::SetVProfile(mpConfig->GetString("Graphics", "ForceVP", "AUTO"));
+    
 	iLowLevelGameSetup *pSetUp = NULL;
-
+    
 	pSetUp = hplNew( cSDLGameSetup, () );
-	mpGame = hplNew( cGame, ( pSetUp,Vars) );
+	mpGame = hplNew( cGame, (pSetUp,Vars) );
     
 #ifdef  TIMELIMIT
 	CheckTimeLimit();
 #endif
-
+    
 	//Make sure there really is haptic support!
-	if(mbHasHaptics && cHaptic::GetIsUsed()==false)
+	if(mbHasHaptics && cHaptic::GetIsUsed() == false)
 	{
 		CreateMessageBoxW(_W("Error!"),_W("No haptic support found. Mouse will be used instead!\n"));
 		mbHasHaptics = false;
 	}
-
-
+    
+    
 	//Make sure hardware is really used.
 	mbUseSoundHardware = mpGame->GetSound()->GetLowLevel()->IsHardwareAccelerated();
 
@@ -445,11 +445,12 @@ bool cInit::Init(tString asCommandLine)
 
 	mfMaxPhysicsTimeStep = 1.0f / mfPhysicsUpdatesPerSec;
 	
+	// NOTE(HM) start the random number generator
 	cMath::Randomize();
-
+    
 	// RESOURCE INIT /////////////////////
 	mpGame->GetResources()->LoadResourceDirsFile("resources.cfg");
-
+    
 	// LANGUAGE ////////////////////////////////
 	mpGame->GetResources()->SetLanguageFile(msLanguageFile);
 
@@ -459,17 +460,17 @@ bool cInit::Init(tString asCommandLine)
 	//Log("Initializing "PRODUCT_NAME"\n  Version\t"PRODUCT_VERSION"\n  Date\t"PRODUCT_DATE"\n");
 	//////////////////////////////////////////////7
 	// Check if computer supports game
-	if(CheckSupport(this)==false) return false;
-
+	bool no_support_for_pixelANDvertex_shaders = !(CheckSupport(this));
+	if (no_support_for_pixelANDvertex_shaders) return false;
 	
 	//Add loaders
 	mpGame->GetResources()->AddEntity3DLoader(hplNew( cEntityLoader_GameObject,("Object",this)) );
 	mpGame->GetResources()->AddEntity3DLoader(hplNew( cEntityLoader_GameItem,("Item",this)) );
 	mpGame->GetResources()->AddEntity3DLoader(hplNew( cEntityLoader_GameSwingDoor,("SwingDoor",this)) );
 	mpGame->GetResources()->AddEntity3DLoader(hplNew( cEntityLoader_GameLamp,("Lamp",this)) );
-
+    
 	mpGame->GetResources()->AddEntity3DLoader(hplNew( cEntityLoader_GameEnemy,("Enemy",this)) );
-
+    
     mpGame->GetResources()->AddArea3DLoader(hplNew( cAreaLoader_GameArea,("script",this)) );
 	mpGame->GetResources()->AddArea3DLoader(hplNew( cAreaLoader_GameLink,("link",this)) );
 	
@@ -481,8 +482,8 @@ bool cInit::Init(tString asCommandLine)
 	mpGame->GetResources()->AddArea3DLoader(hplNew( cAreaLoader_GameLiquidArea,("liquid",this)) );
 	mpGame->GetResources()->AddArea3DLoader(hplNew( cAreaLoader_GameStickArea,("stick",this)) );
 #endif
-
-		
+    
+    
 	/// FIRST LOADING SCREEN ////////////////////////////////////
 	mpGraphicsHelper = hplNew( cGraphicsHelper, (this) );
 	mpGraphicsHelper->DrawLoadingScreen("");
@@ -492,7 +493,7 @@ bool cInit::Init(tString asCommandLine)
 		
 	// PHYSICS INIT /////////////////////
 	mpGame->GetPhysics()->LoadSurfaceData("materials.cfg", mpGame->GetHaptic());
-	
+
 	// EARLY GAME INIT /////////////////////
 	mpEffectHandler = hplNew( cEffectHandler, (this) );
 	
@@ -500,20 +501,20 @@ bool cInit::Init(tString asCommandLine)
 	mpGame->GetGraphics()->GetRendererPostEffects()->SetActive(mbPostEffects);
 	mpGame->GetGraphics()->GetRendererPostEffects()->SetBloomActive(mpConfig->GetBool("Graphics", "Bloom", true));
 	mpGame->GetGraphics()->GetRendererPostEffects()->SetBloomSpread(6);
-
+    
 	mpGame->GetGraphics()->GetRendererPostEffects()->SetMotionBlurActive(mpConfig->GetBool("Graphics", "MotionBlur", false));
 	mpGame->GetGraphics()->GetRendererPostEffects()->SetMotionBlurAmount(mpConfig->GetFloat("Graphics", "MotionBlurAmount", 0.3f));
-
+    
 	mpGame->GetGraphics()->GetRenderer3D()->SetRefractionUsed(mpConfig->GetBool("Graphics", "Refractions", false));
-
+    
 	mpEffectHandler->GetDepthOfField()->SetDisabled(!mpConfig->GetBool("Graphics", "DepthOfField", true));
-
+    
 	mpGame->GetResources()->GetMaterialManager()->SetTextureSizeLevel(mpConfig->GetInt("Graphics","TextureSizeLevel",0));
 	mpGame->GetResources()->GetMaterialManager()->SetTextureFilter((eTextureFilter)mpConfig->GetInt("Graphics","TextureFilter",0));
 	mpGame->GetResources()->GetMaterialManager()->SetTextureAnisotropy(mpConfig->GetFloat("Graphics","TextureAnisotropy",1.0f));
-
+    
 	mpGame->GetGraphics()->GetLowLevel()->SetGammaCorrection(mpConfig->GetFloat("Graphics","Gamma",1.0f));
-
+    
 	mpGame->GetGraphics()->GetRenderer3D()->SetShowShadows((eRendererShowShadows)mpConfig->GetInt("Graphics","Shadows",0));
 
 	mpGame->SetLimitFPS( mpConfig->GetBool("Graphics","LimitFPS",true));
@@ -523,7 +524,7 @@ bool cInit::Init(tString asCommandLine)
 	{
 		mpGame->GetHaptic()->GetLowLevel()->SetWorldScale(mfHapticScale);
 		mpGame->GetHaptic()->GetLowLevel()->SetVirtualMousePosBounds(cVector2f(-60,-60),
-											cVector2f(25,25), cVector2f(800, 600));
+                                                                     cVector2f(25,25), cVector2f(VIRTUAL_SCREEN_WIDTH, VIRTUAL_SCREEN_HIGTH));
 		mpGame->GetHaptic()->GetLowLevel()->SetProxyRadius(mfHapticProxyRadius);
 		
 	}
@@ -550,14 +551,15 @@ bool cInit::Init(tString asCommandLine)
 	mpDemoEndText = hplNew( cDemoEndText,(this) );
     
 	mpIntroStory = hplNew( cIntroStory,(this) );
-
+    
 	mpMainMenu = hplNew( cMainMenu,(this) );
 
+    
 	// UPDATE STATES INIT /////////////////////
 	//Add to the global state
 	mpGame->GetUpdater()->AddGlobalUpdate(mpButtonHandler);
 	mpGame->GetUpdater()->AddGlobalUpdate(mpSaveHandler);
-
+    
 	//Add to the default state
 	mpGame->GetUpdater()->AddUpdate("Default", mpButtonHandler);
 	mpGame->GetUpdater()->AddUpdate("Default", mpPlayer);
@@ -575,37 +577,36 @@ bool cInit::Init(tString asCommandLine)
 	mpGame->GetUpdater()->AddUpdate("Default", mpNumericalPanel);
 	mpGame->GetUpdater()->AddUpdate("Default", mpDeathMenu);
 	mpGame->GetUpdater()->AddUpdate("Default", this); //need this last because of the init script.
-
+    
 	//Add to intro state
 	mpGame->GetUpdater()->AddContainer("Intro");
 	mpGame->GetUpdater()->AddUpdate("Intro",mpIntroStory);
-
+    
 	//Add to main menu state
 	mpGame->GetUpdater()->AddContainer("MainMenu");
 	mpGame->GetUpdater()->AddUpdate("MainMenu",mpMainMenu);
-
+    
 	//Add to map load text state
 	mpGame->GetUpdater()->AddContainer("MapLoadText");
 	mpGame->GetUpdater()->AddUpdate("MapLoadText",mpMapLoadText);
-
+    
 	//Add to pre menu state
 	mpGame->GetUpdater()->AddContainer("PreMenu");
 	mpGame->GetUpdater()->AddUpdate("PreMenu",mpPreMenu);
-
+    
 	//Add to credits text state
 	mpGame->GetUpdater()->AddContainer("Credits");
 	mpGame->GetUpdater()->AddUpdate("Credits", mpCredits);
-
+    
 	//Add to demo end text state
 	mpGame->GetUpdater()->AddContainer("DemoEndText");
 	mpGame->GetUpdater()->AddUpdate("DemoEndText", mpDemoEndText);
-
+    
 	mpGame->GetUpdater()->SetContainer("Default");
 	
 	// SCRIPT INIT /////////////////////
 	cGameScripts::Init();
-
-
+    
 	// MISC INIT ///////////////////////
 	mpDefaultFont = mpGame->GetResources()->GetFontManager()->CreateFontData("verdana.fnt");
 	
@@ -617,11 +618,11 @@ bool cInit::Init(tString asCommandLine)
 	}
 	
 	//mpGraphicsHelper->DrawLoadingScreen("");
-
+    
 	//mpIntroStory->SetActive(true);
 	//mpCredits->SetActive(true);
 	//mpDemoEndText->SetActive(true);
-
+    
 	//mpGame->SetRenderOnce(true);
 	//mpGame->GetGraphics()->GetRenderer3D()->SetDebugFlags(eRendererDebugFlag_LogRendering);
 	
@@ -635,14 +636,14 @@ bool cInit::Init(tString asCommandLine)
 	}
 	else
 	{
-		mpMapHandler->Load(	msStartMap,msStartLink);
+		mpMapHandler->Load(	msStartMap, msStartLink);
 	}
-
+    
 	if (gbUsingUserSettings) {
 		mpConfig->SetBool("Game","LastInitOK", true);
 		mpConfig->Save();
 	}
-
+    
 	//////////////////////////////////////////////////////////
 	// Create newer settings file, if using default.
 	if(gbUsingUserSettings == false)
@@ -662,7 +663,7 @@ bool cInit::Init(tString asCommandLine)
 void cInit::ResetGame(bool abRunInitScript)
 {
 	mpGame->GetUpdater()->Reset();
-
+    
 	if(abRunInitScript)
 	{
 		if(mpGlobalScript)
@@ -670,7 +671,7 @@ void cInit::ResetGame(bool abRunInitScript)
 			mpGlobalScript->Run("OnInit()");
 		}
 	}
-
+    
 	mpGame->GetSound()->GetMusicHandler()->Stop(100);
 	mpGame->GetSound()->GetSoundHandler()->StopAll(eSoundDest_All);
 }
@@ -686,7 +687,7 @@ void cInit::Run()
 
 void cInit::OnStart()
 {
-
+    
 }
 
 //-----------------------------------------------------------------------
@@ -725,15 +726,15 @@ void cInit::Exit()
 		mpConfig->SetFloat("Haptics","InteractModeCameraSpeed",mpPlayer->GetHapticCamera()->GetInteractModeCameraSpeed());
 		mpConfig->SetFloat("Haptics","ActionModeCameraSpeed",mpPlayer->GetHapticCamera()->GetActionModeCameraSpeed());
 	}
-
+    
 	// PLAYER EXIT /////////////////////
 	//Log(" Exit Save Handler\n");
 	//hplDelete( mpSaveHandler );
-
+    
 	Log(" Reset maphandler\n");
 	mpMapHandler->Reset();
 	
-
+    
 	Log(" Exit Player\n");
 	// PLAYER EXIT /////////////////////
 	hplDelete( mpPlayer );
@@ -783,7 +784,7 @@ void cInit::Exit()
 	hplDelete( mpCredits );
 	Log(" Exit Demo end text\n");
 	hplDelete( mpDemoEndText );
-
+    
     Log(" Saving config\n");
 	//Save engine stuff.
 	mpConfig->SetBool("Graphics", "Bloom",mpGame->GetGraphics()->GetRendererPostEffects()->GetBloomActive());
@@ -800,26 +801,26 @@ void cInit::Exit()
 	mpConfig->SetInt("Sound","MaxMonoChannelsHint",mlMaxMonoChannelsHint);
 	mpConfig->SetInt("Sound","MaxStereoChannelsHint",mlMaxStereoChannelsHint);
 	mpConfig->SetString("Sound","DeviceName",msDeviceName);
-
+    
 	
 	mpConfig->SetInt("Graphics","TextureSizeLevel",mpGame->GetResources()->GetMaterialManager()->GetTextureSizeLevel());
 	mpConfig->SetInt("Graphics","TextureFilter",mpGame->GetResources()->GetMaterialManager()->GetTextureFilter());
 	mpConfig->SetFloat("Graphics","TextureAnisotropy",mpGame->GetResources()->GetMaterialManager()->GetTextureAnisotropy());
-
+    
 	mpConfig->SetFloat("Graphics","Gamma",mpGame->GetGraphics()->GetLowLevel()->GetGammaCorrection());
-
+    
 	mpConfig->SetInt("Graphics","FSAA",mlFSAA);
 	mpConfig->SetBool("Graphics","PostEffects",mbPostEffects);
 	mpConfig->SetInt("Graphics","ShaderQuality",iMaterial::GetQuality());
 	mpConfig->SetBool("Graphics","LimitFPS",mpGame->GetLimitFPS());
-
+    
 	mpConfig->SetInt("Graphics","Shadows",mpGame->GetGraphics()->GetRenderer3D()->GetShowShadows());
-		
+    
 	Log(" Exit Effect Handler\n");
 	hplDelete( mpEffectHandler );
 
 	Log(" Exit Game\n");
-
+    
 	// MAIN EXIT /////////////////////
 	//Delete the game,  do this after all else is deleted.
 	hplDelete( mpGame );
@@ -841,7 +842,7 @@ void cInit::Exit()
 	mpConfig->SetBool("Game","AllowQuickSave",mbAllowQuickSave); 
 	mpConfig->SetBool("Game","FlashItems",mbFlashItems); 
 	mpConfig->SetBool("Game","ShowCrossHair",mbShowCrossHair);
-
+    
 	mpConfig->SetBool("Game","SimpleSwingInOptions",mbSimpleSwingInOptions); 
 
 	
@@ -854,18 +855,17 @@ void cInit::Exit()
 	mpConfig->SetBool("Game","ShowPreMenu",mbShowPreMenu);
 	mpConfig->SetBool("Game","ShowMenu",mbShowMenu);
 	mpConfig->SetBool("Game","ShowIntro",mbShowIntro);
-
+    
 	mpConfig->SetInt("Physics","PhysicsAccuracy",mPhysicsAccuracy);
 	mpConfig->SetFloat("Physics","UpdatesPerSec",mfPhysicsUpdatesPerSec);
-
-
+    
+    
 	mpConfig->SetBool("Debug", "LogResources", mbLogResources);
-
+    
 	mpConfig->Save();
 	hplDelete( mpConfig );
-
+    
 	hplDelete( mpGameConfig );
-
 	
 #ifdef DEMO_VERSION
 	if(msWebPageOnExit != "")
@@ -897,10 +897,10 @@ void cInit::RunScriptCommand(const tString& asCommand)
 //-----------------------------------------------------------------------
 void cInit::PreloadSoundEntityData(const tString &asFile)
 {
-	if(asFile=="") return;
+	if(asFile == "") return;
 	
 	mpGame->GetResources()->GetSoundEntityManager()->Preload(asFile);
-		
+    
 	/*iSoundData *pSound = mpGame->GetResources()->GetSoundManager()->CreateSoundData(asFile,false);
 	if(pSound){
 		Warning("Couldn't preload sound '%s'\n",asFile.c_str());
@@ -912,9 +912,9 @@ void cInit::PreloadSoundEntityData(const tString &asFile)
 
 void cInit::PreloadParticleSystem(const tString &asFile)
 {
-	if(asFile=="") return;
+	if(asFile == "") return;
 	cParticleSystem3D *pPS  = mpGame->GetResources()->GetParticleManager()->CreatePS3D(
-																"",asFile,1,cMatrixf::Identity);
+                                                                                       "",asFile,1,cMatrixf::Identity);
 	hplDelete( pPS );
 }
 
