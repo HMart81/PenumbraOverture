@@ -1174,7 +1174,7 @@ public:
 		int lCurrentNum = 0;
 
 		//get current num
-        for(int i=0; i<mlDevices.size(); ++i)
+        for(int i=0; i < (int)mlDevices.size(); ++i)
 		{
 			if(mlDevices[i] == mpInit->msDeviceName)
 			{
@@ -1186,7 +1186,7 @@ public:
 		if(aButton == eMButton_Left)
 		{
 			lCurrentNum++;
-			if(lCurrentNum >= mlDevices.size()) lCurrentNum =0;
+			if(lCurrentNum >= (int)mlDevices.size()) lCurrentNum =0;
 		}
 		else if(aButton == eMButton_Right)
 		{

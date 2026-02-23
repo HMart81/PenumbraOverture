@@ -74,9 +74,9 @@ cInit* gpInit;
 //#define TIMELIMIT
 
 #ifdef  TIMELIMIT
-	float gfNoHealthLeftMin = 19;
-	float gfNoHealthLeftMax = 26;
-	void CheckTimeLimit()
+	constexpr float gfNoHealthLeftMin = 19;
+	constexpr float gfNoHealthLeftMax = 26;
+	static void CheckTimeLimit()
 	{
 		iLowLevelSystem *pLowlevelSystem = gpInit->mpGame->GetSystem()->GetLowLevel();
 		cDate date = pLowlevelSystem->GetDate();	
@@ -108,7 +108,7 @@ cInit* gpInit;
 ///////////////////////////////////////////////
 // BEGIN CHECK SUPPORT
 
-bool CheckSupport(cInit *apInit)
+static bool CheckSupport(cInit *apInit)
 {
 	iLowLevelGraphics *pLowLevelGraphics = apInit->mpGame->GetGraphics()->GetLowLevel();
 	cInit *mpInit = apInit;
